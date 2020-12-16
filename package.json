@@ -1,0 +1,28 @@
+{
+  "name": "tictactoe",
+  "version": "1.0.0",
+  "description": "TicTacToe game for The Odin Project",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JoaoOliveira85/TicTacToe.git"
+  },
+  "keywords": [
+    "TicTacToe",
+    "game",
+    "Odin",
+    "Project"
+  ],
+  "author": "João Pedro Oliveira",
+  "license": "CC0-1.0",
+  "bugs": {
+    "url": "https://github.com/JoaoOliveira85/TicTacToe/issues"
+  },
+  "homepage": "https://github.com/JoaoOliveira85/TicTacToe#readme",
+  "devDependencies": {
+    "eslint": "^7.15.0"
+  }
+}
