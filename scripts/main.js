@@ -36,55 +36,146 @@ window.drawGrid = (function () {
 })();
 
 window.gameLogic = (function () {
+	let availableItems = () => {
+		return window.drawGrid.gridItems.reduce((accumulator, curentItem) => {
+			if (curentItem.text === "") {
+				accumulator.push(curentItem.coords);
+			}
+			return accumulator;
+		}, []);
+	};
+
 	let _gameOver = false;
-	let _currentTurn = true;
 	function matchPlay(cell) {
-		if (!(cell.text === "") || _gameOver) {
-			return;
+		if (availableItems().length >= 1 || !_gameOver) {
+			playerA.play(`${cell.coords}`);
+			evaluateWinner();
 		}
-		_currentTurn
-			? playerA.humanPlay(`${cell.coords}`)
-			: playerB.computerPlay();
-        _currentTurn = !_currentTurn;
-        switch (evaluateWinner(cell)) {
-            case 1: 
-                console.log(`${playerA.name} wins!!`);
-                break;
-            case 2:
-                console.log(`${playerB.name} wins!!`);
-                break
-            case 3:
-                console.log("It's a Draw! :(");
-                break;
-        }
+		if (availableItems().length >= 1 || !_gameOver) {
+			playerB.play();
+			evaluateWinner();
+		}
+
+		switch (evaluateWinner()) {
+			case 1:
+				console.log(`${playerA.name} wins!!`);
+				break;
+			case 2:
+				console.log(`${playerB.name} wins!!`);
+				break;
+			case 3:
+				console.log("It's a Draw! :(");
+				break;
+		}
 	}
 	function evaluateWinner() {
 		const gameGrid = window.drawGrid.gridItems;
-        if ((gameGrid[0].text === "X" && gameGrid[1].text  === "X" && gameGrid[2].text  === "X") || (gameGrid[3].text === "X" && gameGrid[4].text  === "X" && gameGrid[5].text  === "X") || (gameGrid[6].text === "X" && gameGrid[7].text  === "X" && gameGrid[8].text  === "X") || (gameGrid[0].text === "X" && gameGrid[4].text  === "X" && gameGrid[8].text  === "X") || (gameGrid[2].text === "X" && gameGrid[4].text  === "X" && gameGrid[6].text  === "X")) {
-            _gameOver = true;
-            return 1;
-        } else if ((gameGrid[0].text === "O" && gameGrid[1].text  === "O" && gameGrid[2].text  === "O") || (gameGrid[3].text === "O" && gameGrid[4].text  === "O" && gameGrid[5].text  === "O") || (gameGrid[6].text === "O" && gameGrid[7].text  === "O" && gameGrid[8].text  === "O") || (gameGrid[0].text === "O" && gameGrid[4].text  === "O" && gameGrid[8].text  === "O") || (gameGrid[2].text === "O" && gameGrid[4].text  === "O" && gameGrid[6].text  === "O"))  {
-            _gameOver = true;
-            return 2;
-        } else if (!gameGrid.map(element => element.text).includes("")) {
-            _gameOver = true;
-            return 3;
-        }
+		if (
+			(gameGrid[0].text === playerA.symbol &&
+				gameGrid[1].text === playerA.symbol &&
+				gameGrid[2].text === playerA.symbol) ||
+			(gameGrid[3].text === playerA.symbol &&
+				gameGrid[4].text === playerA.symbol &&
+				gameGrid[5].text === playerA.symbol) ||
+			(gameGrid[6].text === playerA.symbol &&
+				gameGrid[7].text === playerA.symbol &&
+				gameGrid[8].text === playerA.symbol) ||
+			(gameGrid[0].text === playerA.symbol &&
+				gameGrid[3].text === playerA.symbol &&
+				gameGrid[6].text === playerA.symbol) ||
+			(gameGrid[1].text === playerA.symbol &&
+				gameGrid[4].text === playerA.symbol &&
+				gameGrid[7].text === playerA.symbol) ||
+			(gameGrid[2].text === playerA.symbol &&
+				gameGrid[5].text === playerA.symbol &&
+				gameGrid[8].text === playerA.symbol) ||
+			(gameGrid[0].text === playerA.symbol &&
+				gameGrid[4].text === playerA.symbol &&
+				gameGrid[8].text === playerA.symbol) ||
+			(gameGrid[2].text === playerA.symbol &&
+				gameGrid[4].text === playerA.symbol &&
+				gameGrid[6].text === playerA.symbol)
+		) {
+			_gameOver = true;
+			return 1;
+		} else if (
+			(gameGrid[0].text === playerB.symbol &&
+				gameGrid[1].text === playerB.symbol &&
+				gameGrid[2].text === playerB.symbol) ||
+			(gameGrid[3].text === playerB.symbol &&
+				gameGrid[4].text === playerB.symbol &&
+				gameGrid[5].text === playerB.symbol) ||
+			(gameGrid[6].text === playerB.symbol &&
+				gameGrid[7].text === playerB.symbol &&
+				gameGrid[8].text === playerB.symbol) ||
+			(gameGrid[0].text === playerB.symbol &&
+				gameGrid[3].text === playerB.symbol &&
+				gameGrid[6].text === playerB.symbol) ||
+			(gameGrid[1].text === playerB.symbol &&
+				gameGrid[4].text === playerB.symbol &&
+				gameGrid[7].text === playerB.symbol) ||
+			(gameGrid[2].text === playerB.symbol &&
+				gameGrid[5].text === playerB.symbol &&
+				gameGrid[8].text === playerB.symbol) ||
+			(gameGrid[0].text === playerB.symbol &&
+				gameGrid[4].text === playerB.symbol &&
+				gameGrid[8].text === playerB.symbol) ||
+			(gameGrid[2].text === playerB.symbol &&
+				gameGrid[4].text === playerB.symbol &&
+				gameGrid[6].text === playerB.symbol)
+		) {
+			_gameOver = true;
+			return 2;
+		} else if (availableItems().length === 0) {
+			_gameOver = true;
+			return 3;
+		}
 	}
-	return { matchPlay, evaluateWinner };
+	return { matchPlay, evaluateWinner, availableItems };
 })();
 
-const player = function (name, symbol) {
-	function humanPlay(position) {
+const player = function (name, symbol, type) {
+	function _humanPlay(position) {
+		 {
+			return (window.drawGrid.gridItems.find(
+				(item) => item.coords === `${position}`
+			).text = `${symbol}`);
+		}
+	}
+	function _computerPlay() {
+		if (window.gameLogic.availableItems().length === 0) {
+			return;
+		}
+		function _generatePosition() {
+			return `${
+				window.gameLogic.availableItems()[
+					Math.floor(
+						Math.random() *
+							Math.floor(window.gameLogic.availableItems().length - 1)
+					)
+				]
+			}`;
+		}
+
+		const _cpuPosition = _generatePosition();
+
 		return (window.drawGrid.gridItems.find(
-			(item) => item.coords === `${position}`
+			(item) => item.coords === _cpuPosition
 		).text = `${symbol}`);
 	}
-	function computerPlay() {
-		return (window.drawGrid.gridItems.find((item) => item.coords === `${Math.round(Math.random()*9)}:${Math.round(Math.random()*9)}`).text = `${symbol}`)
+	function play(position) {
+		switch (type) {
+			case "human":
+				_humanPlay(position);
+				break;
+			case "cpu":
+				_computerPlay();
+				break;
+		}
 	}
-	return { name, humanPlay, computerPlay };
+	console.info(`Created player: ${name}`);
+	return { name, play, symbol };
 };
 
-const playerA = player("Player A", "X");
-const playerB = player("Player B", "O");
+const playerA = player("Player A", "X", "human");
+const playerB = player("Player B", "O", "cpu");
